@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Docker CI/CD with GitHub Actions (Multi-Environment)
 
-## Getting Started
+## 📌 Objective
+The objective of this assignment is to design and implement a **single GitHub Actions workflow** that builds a Docker image for an application, tags it based on the target environment, and pushes it to **Docker Hub**.  
+The workflow supports **development, staging, and production** environments using branch-based triggers.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🗂 Project Overview
+- **Project Type:** Open-source Node.js / Next.js application
+- **Containerization:** Docker (multi-stage build)
+- **CI/CD Tool:** GitHub Actions
+- **Container Registry:** Docker Hub
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The same Dockerfile is reused across all environments, ensuring consistency and avoiding duplication.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔧 Workflow Design
 
-## Learn More
+The GitHub Actions workflow is structured into **three independent jobs**, each corresponding to a specific environment.
 
-To learn more about Next.js, take a look at the following resources:
+### Jobs Overview
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Job Name | Branch Trigger | Docker Tag |
+|--------|---------------|-----------|
+| dev | `dev` | `:dev` |
+| staging | `staging` | `:staging` |
+| production | `master` | `:production` |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Each job performs the following steps:
+1. Checks out the source code  
+2. Logs in to Docker Hub using GitHub Secrets  
+3. Builds the Docker image  
+4. Tags the image based on the environment  
+5. Pushes the image to Docker Hub  
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🚀 Branch-Based Execution Logic
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The workflow ensures **only one job runs per branch** using conditional execution:
+
+- Push to `dev` → **only dev job runs**
+- Push to `staging` → **only staging job runs**
+- Push to `master` → **only production job runs**
+
+This guarantees strict environment isolation and prevents accidental deployments.
+
+---
+
+## 🔐 Environment Variables & Secrets
+
+To follow security best practices:
+
+- No credentials or sensitive values are hardcoded
+- All secrets are managed via **GitHub Repository Secrets**
+
+### Required Secrets
+
+| Secret Name | Description |
+|-----------|-------------|
+| `DOCKER_USERNAME` | Docker Hub username |
+| `DOCKER_PASSWORD` | Docker Hub access token |
+| `IMAGE_NAME` | Docker image name (e.g. `username/app-name`) |
+
+Secrets are securely injected into the workflow at runtime.
+
+---
+
+## 🐳 Docker Implementation
+
+- Multi-stage Dockerfile is used to optimize image size
+- Production-ready build using **Next.js standalone output**
+- Environment-specific configuration is handled via build arguments and runtime variables
+
+The same Dockerfile is reused across all environments.
+
+---
+
+## 🔄 Docker Hub Integration
+
+- Docker Hub login is performed using GitHub Secrets
+- Authentication happens before build and push steps
+- Images are pushed with environment-specific tags
+
+---
+
+## ✅ Assignment Requirements Mapping
+
+| Requirement | Status |
+|------------|--------|
+| Single GitHub Actions workflow | ✅ |
+| Three jobs (dev, staging, production) | ✅ |
+| Docker image build per environment | ✅ |
+| No hardcoded secrets | ✅ |
+| Branch-based triggers | ✅ |
+| Docker Hub authentication via secrets | ✅ |
+
+---
+
+## 🏁 Conclusion
+
+This project implements a **production-ready CI/CD pipeline** using GitHub Actions and Docker.  
+All assignment objectives have been **successfully completed**, following industry best practices for security, scalability, and maintainability.
+
