@@ -1,8 +1,8 @@
-FROM node:22-alpine AS deps
+FROM node:22 AS deps
 
 WORKDIR /app
 
-COPY package.json
+COPY package.json ./
 
 RUN npm install
 
